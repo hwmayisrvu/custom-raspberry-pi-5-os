@@ -209,7 +209,7 @@ export FIRST_USER_PASS=${FIRST_USER_PASS:-isrvu}
 export DISABLE_FIRST_BOOT_USER_RENAME=${DISABLE_FIRST_BOOT_USER_RENAME:-1}
 export WPA_COUNTRY
 export ENABLE_SSH="${ENABLE_SSH:-0}"
-export PUBKEY_ONLY_SSH="${PUBKEY_ONLY_SSH:-0}"
+export PUBKEY_ONLY_SSH="${PUBKEY_ONLY_SSH:-1}"
 
 export LOCALE_DEFAULT="${LOCALE_DEFAULT:-en_GB.UTF-8}"
 
@@ -220,7 +220,12 @@ export TIMEZONE_DEFAULT="${TIMEZONE_DEFAULT:-Europe/London}"
 
 export GIT_HASH=${GIT_HASH:-"$(git rev-parse HEAD)"}
 
-export PUBKEY_SSH_FIRST_USER
+if [[ "${PUBKEY_ONLY_SSH}" = "1" && ! -e "${PUBKEY_SSH_FIRST_USER:-conf/ssh/authorized_keys}" ]]; then
+	echo "Must set 'PUBKEY_SSH_FIRST_USER' to a valid file path or use the default 'conf/ssh/authorized_keys' and have said file exist if using PUBKEY_ONLY_SSH"
+	exit 1
+fi
+
+export PUBKEY_SSH_FIRST_USER=$(cat "${PUBKEY_SSH_FIRST_USER:-conf/ssh/authorized_keys}")
 
 export CLEAN
 export APT_PROXY
@@ -287,11 +292,6 @@ fi
 
 if [[ -n "${WPA_PASSWORD}" && ${#WPA_PASSWORD} -lt 8 || ${#WPA_PASSWORD} -gt 63  ]] ; then
 	echo "WPA_PASSWORD" must be between 8 and 63 characters
-	exit 1
-fi
-
-if [[ "${PUBKEY_ONLY_SSH}" = "1" && -z "${PUBKEY_SSH_FIRST_USER}" ]]; then
-	echo "Must set 'PUBKEY_SSH_FIRST_USER' to a valid SSH public key if using PUBKEY_ONLY_SSH"
 	exit 1
 fi
 
