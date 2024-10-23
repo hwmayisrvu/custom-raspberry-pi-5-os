@@ -208,6 +208,8 @@ export FIRST_USER_NAME=${FIRST_USER_NAME:-owner}
 export FIRST_USER_PASS=${FIRST_USER_PASS:-isrvu}
 export DISABLE_FIRST_BOOT_USER_RENAME=${DISABLE_FIRST_BOOT_USER_RENAME:-1}
 export WPA_COUNTRY
+export WPA_ESSID
+export WPA_PASSWORD
 export ENABLE_SSH="${ENABLE_SSH:-0}"
 export PUBKEY_ONLY_SSH="${PUBKEY_ONLY_SSH:-1}"
 
@@ -290,9 +292,21 @@ if [[ -n "${APT_PROXY}" ]] && ! curl --silent "${APT_PROXY}" >/dev/null ; then
 	exit 1
 fi
 
-if [[ -n "${WPA_PASSWORD}" && ${#WPA_PASSWORD} -lt 8 || ${#WPA_PASSWORD} -gt 63  ]] ; then
-	echo "WPA_PASSWORD" must be between 8 and 63 characters
-	exit 1
+if [[ -n "${WPA_ESSID}" ]]; then
+	if [[ -z "${WPA_PASSWORD}" ]]; then
+		echo "Must set 'WPA_PASSWORD' to a valid WPA password if using WPA_ESSID"
+		exit 1
+	else
+		if [[ ${#WPA_PASSWORD} -lt 8 || ${#WPA_PASSWORD} -gt 63  ]] ; then
+			echo "WPA_PASSWORD" must be between 8 and 63 characters
+			exit 1
+		else
+			if [[ -z "${WPA_COUNTRY}" ]]; then
+				echo "Must set 'WPA_COUNTRY' to a valid WPA country if using WPA_ESSID and WPA_PASSWORD"
+				exit 1
+			fi
+		fi
+	fi
 fi
 
 mkdir -p "${WORK_DIR}"
