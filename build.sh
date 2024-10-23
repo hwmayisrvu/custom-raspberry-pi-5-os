@@ -139,9 +139,9 @@ fi
 
 export BASE_DIR
 
-if [ -f config ]; then
+if [ -f conf/raspi-srvs.conf ]; then
 	# shellcheck disable=SC1091
-	source config
+	source conf/raspi-srvs.conf
 fi
 
 while getopts "c:" flag
