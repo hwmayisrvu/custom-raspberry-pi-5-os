@@ -20,6 +20,11 @@ if [ "${PUBKEY_ONLY_SSH}" = "1" ]; then
 s/^#?[[:blank:]]*PasswordAuthentication[[:blank:]]*yes[[:blank:]]*$/PasswordAuthentication no/' "${ROOTFS_DIR}"/etc/ssh/sshd_config
 fi
 
+if [ "${ENABLE_SSH}" == "1" ]; then
+	install -m 640 files/user.rules "${ROOTFS_DIR}/etc/ufw/user.rules"
+	install -m 640 files/user6.rules "${ROOTFS_DIR}/etc/ufw/user6.rules"
+fi
+
 on_chroot << EOF
 systemctl disable hwclock.sh
 systemctl disable nfs-common
